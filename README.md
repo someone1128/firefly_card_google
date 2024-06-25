@@ -8,6 +8,8 @@
 
 🔗 流光卡片 Google 插件 GitHub：https://github.com/someone1128/firefly_card_google
 
+🔗 Youtube 演示地址：https://www.youtube.com/watch?v=H8le6asUqkw
+
 ## 🎨为什么我们选择开源插件？
 
 1. 加速使用：插件正在审核中，但我们迫不及待想让您体验这款神奇工具。
