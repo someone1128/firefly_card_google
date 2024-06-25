@@ -6,7 +6,7 @@
 
 🔗 流光卡片 Google 插件 Gitee：https://gitee.com/hzymy/firefly_card_google
 
-🔗 流光卡片 Google 插件 GitHub：
+🔗 流光卡片 Google 插件 GitHub：https://github.com/someone1128/firefly_card_google
 
 ## 🎨为什么我们选择开源插件？
 
