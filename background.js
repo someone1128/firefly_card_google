@@ -23,7 +23,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         console.log("选中文本",selectedText);
         // 将连续两个空格替换为自定义标记
         const encodedText = encodeURIComponent(selectedText.trim().replace(/ {2}/g, '__NEWLINE__'));
-        const baseUrl = 'https://fireflycard.shushiai.com';
+        const baseUrl = 'https://fireflycard.shushiai.com/zh';
         const newUrl = `${baseUrl}?content=${encodedText}`;
 
         // 获取所有打开的标签页
