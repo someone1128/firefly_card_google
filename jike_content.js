@@ -177,14 +177,19 @@ function addFireflyButtonToJikePost(postElement) {
 
 function observeJikeTimeline() {
     const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            for (const node of mutation.addedNodes) {
-                if (node.nodeType === Node.ELEMENT_NODE) {
-                    const posts = node.querySelectorAll('article.flex.items-start.transition.duration-100.bg-bg-body-1');
-                    posts.forEach(addFireflyButtonToJikePost);
-                }
+        mutations.forEach(mutation => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const posts = node.querySelectorAll('article.flex.items-start.transition.duration-100.bg-bg-body-1:not(.firefly-processed)');
+                        posts.forEach(post => {
+                            addFireflyButtonToJikePost(post);
+                            post.classList.add('firefly-processed');
+                        });
+                    }
+                });
             }
-        }
+        });
     });
 
     observer.observe(document.body, { childList: true, subtree: true });

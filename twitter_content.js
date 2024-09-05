@@ -118,17 +118,19 @@ function addFireflyButtonToTweet(tweetElement) {
 
 function observeTwitterTimeline() {
     const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            for (const node of mutation.addedNodes) {
-                if (node.nodeType === Node.ELEMENT_NODE) {
-                    const tweets = node.querySelectorAll('article[data-testid="tweet"]:not(.firefly-processed)');
-                    tweets.forEach(tweet => {
-                        addFireflyButtonToTweet(tweet);
-                        tweet.classList.add('firefly-processed');
-                    });
-                }
+        mutations.forEach(mutation => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const tweets = node.querySelectorAll('article[data-testid="tweet"]:not(.firefly-processed)');
+                        tweets.forEach(tweet => {
+                            addFireflyButtonToTweet(tweet);
+                            tweet.classList.add('firefly-processed');
+                        });
+                    }
+                });
             }
-        }
+        });
     });
 
     observer.observe(document.body, { childList: true, subtree: true });

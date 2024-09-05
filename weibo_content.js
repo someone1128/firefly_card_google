@@ -114,7 +114,7 @@ function getWeiboContent(postElement) {
 }
 
 function processWeiboContent(content) {
-    // 将HTML中的<br>、<p>和<div>标签转换为实际的换行符
+    // 将HTML中的<br>和<p>标签转换为实际的换行符
     let processedContent = content
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<p[^>]*>/gi, '\n')
@@ -130,13 +130,13 @@ function processWeiboContent(content) {
     textarea.innerHTML = processedContent;
     processedContent = textarea.value;
 
-    // 移除多余的空行，但保留有意义的换行
+    // 处理连续的换行，保留最多两个连续的换行
     processedContent = processedContent.replace(/\n{3,}/g, '\n\n');
 
     // 移除行首和行尾的空白字符
     processedContent = processedContent.split('\n').map(line => line.trim()).join('\n');
 
-    // 确保段落之间有空行
+    // 确保段落之间有一个空行
     processedContent = processedContent.replace(/([^\n])\n([^\n])/g, '$1\n\n$2');
 
     return processedContent.trim();
@@ -171,29 +171,68 @@ function addFireflyButtonToWeiboPost(postElement) {
 
 function observeWeiboTimeline() {
     const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            for (const node of mutation.addedNodes) {
-                if (node.nodeType === Node.ELEMENT_NODE) {
-                    const posts = node.querySelectorAll('article.Feed_wrap_3v9LH');
-                    posts.forEach(addFireflyButtonToWeiboPost);
+        mutations.forEach(mutation => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        // 检查新添加的节点是否是帖子，或者包含帖子
+                        const posts = node.classList.contains('Feed_wrap_3v9LH') 
+                            ? [node] 
+                            : node.querySelectorAll('article.Feed_wrap_3v9LH');
+                        posts.forEach(addFireflyButtonToWeiboPost);
+                    }
+                });
+            } else if (mutation.type === 'attributes') {
+                // 处理属性变化，可能是动态加载的内容
+                if (mutation.target.classList.contains('Feed_wrap_3v9LH')) {
+                    addFireflyButtonToWeiboPost(mutation.target);
                 }
             }
-        }
+        });
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    // 观察整个文档体，包括属性变化
+    observer.observe(document.body, { 
+        childList: true, 
+        subtree: true, 
+        attributes: true, 
+        attributeFilter: ['class'] 
+    });
 }
 
 function initializeExtension() {
     console.log("Initializing extension for Weibo");
     try {
         observeWeiboTimeline();
+        // 初始化时处理已存在的帖子
         const existingPosts = document.querySelectorAll('article.Feed_wrap_3v9LH');
         console.log("Found existing posts:", existingPosts.length);
         existingPosts.forEach(addFireflyButtonToWeiboPost);
+
+        // 添加滚动事件监听器
+        window.addEventListener('scroll', debounce(() => {
+            const newPosts = document.querySelectorAll('article.Feed_wrap_3v9LH:not(.firefly-processed)');
+            newPosts.forEach(post => {
+                addFireflyButtonToWeiboPost(post);
+                post.classList.add('firefly-processed');
+            });
+        }, 200));
     } catch (error) {
         console.error('Error initializing extension:', error);
     }
+}
+
+// 防抖函数
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
 // 使用 setTimeout 来确保在页面加载完成后初始化扩展
