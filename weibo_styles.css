@@ -1,0 +1,19 @@
+.weibo-firefly-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.weibo-firefly-button:hover {
+    opacity: 1;
+}
+
+.weibo-firefly-button img {
+    width: 18px;
+    height: 18px;
+}

@@ -1,0 +1,36 @@
+.firefly-button {
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0);
+    border: 0 solid black;
+    box-sizing: border-box;
+    display: flex;
+    flex-basis: auto;
+    flex-shrink: 0;
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+    position: relative;
+    text-decoration: none;
+    z-index: 0;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.firefly-button img {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+article[data-testid="tweet"]:hover .firefly-button {
+    opacity: 1;
+}
+
+.firefly-button:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+    border-radius: 9999px;
+}

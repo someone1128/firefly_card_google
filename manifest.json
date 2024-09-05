@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "流光卡片~让分享更优雅",
-  "version": "1.0",
-  "description": "我们致力于提供一种全新的文字体验。让你分享的文字，书摘，小红书帖子，歌词，朋友圈语录变得更优雅有吸引力",
+  "name": "__MSG_extName__",
+  "version": "1.3",
+  "description": "__MSG_extDescription__",
+  "default_locale": "zh",
   "permissions": [
     "contextMenus",
     "activeTab",
@@ -18,12 +19,67 @@
       ],
       "js": [
         "content.js"
-      ]
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": [
+        "common_utils.js",
+        "twitter_content.js"
+      ],
+      "css": [
+        "twitter_styles.css"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://web.okjike.com/*"
+      ],
+      "js": [
+        "common_utils.js",
+        "jike_content.js"
+      ],
+      "css": [
+        "jike_styles.css"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://weibo.com/*"
+      ],
+      "js": [
+        "common_utils.js",
+        "weibo_content.js"
+      ],
+      "css": [
+        "weibo_styles.css"
+      ],
+      "run_at": "document_idle"
     }
   ],
+  "action": {
+    "default_icon": {
+      "16": "images/logo.png",
+      "48": "images/logo.png",
+      "128": "images/logo.png"
+    },
+    "default_title": "__MSG_extName__"
+  },
   "icons": {
     "16": "images/logo.png",
     "48": "images/logo.png",
     "128": "images/logo.png"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["images/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

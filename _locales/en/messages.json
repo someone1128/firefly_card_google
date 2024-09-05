@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "Firefly Card - Elegant Sharing",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "We are committed to providing a new text experience. Make your shared text, book excerpts, social media posts, lyrics, and status updates more elegant and attractive",
+    "description": "Extension description"
+  },
+  "contextMenuTitle": {
+    "message": "Firefly Card",
+    "description": "Context menu title"
+  }
+}

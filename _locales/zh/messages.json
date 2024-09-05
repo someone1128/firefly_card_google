@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "流光卡片~让分享更优雅",
+    "description": "扩展名称"
+  },
+  "extDescription": {
+    "message": "我们致力于提供一种全新的文字体验。让你分享的文字，书摘，小红书帖子，歌词，朋友圈语录变得更优雅有吸引力",
+    "description": "扩展描述"
+  },
+  "contextMenuTitle": {
+    "message": "流光卡片",
+    "description": "右键菜单标题"
+  }
+}
