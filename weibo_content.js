@@ -154,6 +154,17 @@ function addFireflyButtonToWeiboPost(postElement) {
             
             toolbarElement.appendChild(buttonContainer);
 
+            // 添加鼠标悬停事件
+            postElement.addEventListener('mouseenter', () => {
+                fireflyButton.style.visibility = 'visible';
+                fireflyButton.style.opacity = '1';
+            });
+
+            postElement.addEventListener('mouseleave', () => {
+                fireflyButton.style.visibility = 'hidden';
+                fireflyButton.style.opacity = '0';
+            });
+
             fireflyButton.addEventListener('click', async (e) => {
                 console.log("Firefly button clicked");
                 e.preventDefault();

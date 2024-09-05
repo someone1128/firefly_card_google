@@ -50,7 +50,7 @@ function addFireflyButton(postElement, platform, extractFunction, getContentFunc
         const buttonContainer = document.createElement('div');
         buttonContainer.className = platform === 'weibo' ? 'woo-box-item-flex toolbar_item_1ky_D toolbar_cursor_34j5V' : 'min-w-[120px] items-center flex cursor-pointer hover:text-web-icon-gray_hover';
         buttonContainer.appendChild(fireflyButton);
-        
+
         if (platform === 'jike') {
             actionsElement.insertBefore(buttonContainer, actionsElement.lastElementChild);
         } else {
@@ -129,13 +129,13 @@ function getJikeContent(postElement) {
     if (!postInfo) return "";
 
     console.log("Extracted Jike Post Info:", postInfo);
-    
+
     // 将HTML中的<br>标签转换为实际的换行符
     let content = postInfo.content.replace(/<br\s*\/?>/gi, '\n');
-    
+
     // 移除所有其他HTML标签
     content = content.replace(/<[^>]*>/g, '');
-    
+
     // 解码HTML实体
     const textarea = document.createElement('textarea');
     textarea.innerHTML = content;
@@ -154,11 +154,22 @@ function addFireflyButtonToJikePost(postElement) {
             const buttonContainer = document.createElement('div');
             buttonContainer.className = 'min-w-[120px] items-center flex cursor-pointer hover:text-web-icon-gray_hover';
             buttonContainer.appendChild(fireflyButton);
-            
+
             // 插入到倒数第二个位置
             const children = Array.from(actionsElement.children);
             const insertIndex = Math.max(0, children.length - 1);
             actionsElement.insertBefore(buttonContainer, children[insertIndex]);
+
+            // 添加鼠标悬停事件
+            postElement.addEventListener('mouseenter', () => {
+                fireflyButton.style.visibility = 'visible';
+                fireflyButton.style.opacity = '1';
+            });
+
+            postElement.addEventListener('mouseleave', () => {
+                fireflyButton.style.visibility = 'hidden';
+                fireflyButton.style.opacity = '0';
+            });
 
             fireflyButton.addEventListener('click', (e) => {
                 console.log("Firefly button clicked");

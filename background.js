@@ -2,10 +2,14 @@
 
 let selectedText = '';
 const baseUrl = 'https://fireflycard.shushiai.com';
+// const baseUrl = 'http://localhost:3000';
 
 function navigateToFireflyCard(content = '') {
+
     const encodedText = content ? encodeURIComponent(content.replace(/ {2}/g, '__NEWLINE__')) : '';
+
     const lang = chrome.i18n.getUILanguage().startsWith('zh') ? 'zh' : 'en';
+
     const newUrl = `${baseUrl}/${lang}?content=${encodedText}`;
 
     chrome.tabs.query({}, function(tabs) {
