@@ -4,13 +4,34 @@ let selectedText = '';
 const baseUrl = 'https://fireflycard.shushiai.com';
 // const baseUrl = 'http://localhost:3000';
 
-function navigateToFireflyCard(content = '') {
+function navigateToFireflyCard(content = '', postInfo = null) {
+    let finalContent = content;
 
-    const encodedText = content ? encodeURIComponent(content.replace(/ {2}/g, '__NEWLINE__')) : '';
+    // 添加图片
+    if (postInfo && postInfo.images && postInfo.images.length > 0) {
+        finalContent += '\n\n';
+        postInfo.images.forEach(img => {
+            if (img) {
+                finalContent += `![image](${img})\n`;
+            }
+        });
+    }
+
+    const encodedText = finalContent ? encodeURIComponent(finalContent.replace(/ {2}/g, '__NEWLINE__')) : '';
 
     const lang = chrome.i18n.getUILanguage().startsWith('zh') ? 'zh' : 'en';
 
-    const newUrl = `${baseUrl}/${lang}?content=${encodedText}`;
+    const switchConfig = {
+        showTitle: false
+    };
+
+    // 添加空值检查
+    const author = postInfo && postInfo.author ? encodeURIComponent(postInfo.author) : '';
+    const icon = postInfo && postInfo.icon ? encodeURIComponent(postInfo.icon) : '';
+
+    const queryString = `content=${encodedText}&author=${author}&icon=${icon}&height=0&switchConfig=${JSON.stringify(switchConfig)}`;
+
+    const newUrl = `${baseUrl}/${lang}?${queryString}`;
 
     chrome.tabs.query({}, function(tabs) {
         if (chrome.runtime.lastError) {
@@ -72,7 +93,7 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'navigateToFireflyCard') {
-        navigateToFireflyCard(message.content);
+        navigateToFireflyCard(message.content, message.postInfo);
         sendResponse({success: true});
     }
     return true;  // 这表示我们会异步发送响应

@@ -27,17 +27,12 @@ function createFireflyButton(retries = 3) {
 }
 
 function extractWeiboPostInfo(postElement) {
-    if (!postElement) {
-        console.error("Invalid post element");
-        return null;
-    }
-
     console.log("Extracting Weibo post info", postElement);
     const post = {
-        avatar: "",
+        icon: "",  // 改为 icon
         content: "",
         images: [],
-        author: "",
+        author: "",  // 改为 author
         time: "",
         reposts: 0,
         comments: 0,
@@ -47,11 +42,11 @@ function extractWeiboPostInfo(postElement) {
     try {
         // 提取头像
         const avatarImg = postElement.querySelector('.woo-avatar-img');
-        post.avatar = avatarImg ? avatarImg.src : "";
+        post.icon = avatarImg ? avatarImg.src : "";  // 使用 icon
 
         // 提取作者
         const authorElement = postElement.querySelector('.head_name_24eEB');
-        post.author = authorElement ? authorElement.textContent.trim() : "";
+        post.author = authorElement ? authorElement.textContent.trim() : "";  // 使用 author
 
         // 提取时间
         const timeElement = postElement.querySelector('.head-info_time_6sFQg');
@@ -169,9 +164,10 @@ function addFireflyButtonToWeiboPost(postElement) {
                 console.log("Firefly button clicked");
                 e.preventDefault();
                 e.stopPropagation();
+                const postInfo = extractWeiboPostInfo(postElement);
                 const content = await getWeiboContent(postElement);
                 if (content) {
-                    sendToFireflyCard(content);
+                    sendToFireflyCard(content, postInfo);
                 }
             });
         }).catch(error => {

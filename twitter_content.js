@@ -11,8 +11,8 @@ function createFireflyButton() {
 function extractTweetInfo(articleElement) {
     const tweet = {
         url: '',
-        avatar: "",
-        username: "",
+        icon: "",  // 改为 icon
+        author: "",  // 改为 author
         time: 0,
         text: "",
         tags: [],
@@ -26,7 +26,7 @@ function extractTweetInfo(articleElement) {
     try {
         // 提取头像
         const avatarImg = articleElement.querySelector('img[draggable="true"]');
-        tweet.avatar = avatarImg ? avatarImg.src : "";
+        tweet.icon = avatarImg ? avatarImg.src : "";  // 使用 icon
 
         // 提取用户信息和时间
         const userInfoDiv = articleElement.querySelector('[data-testid="User-Name"]');
@@ -34,7 +34,7 @@ function extractTweetInfo(articleElement) {
             const urls = Array.from(userInfoDiv.querySelectorAll('a')).map(e => e.href);
             tweet.url = urls.find((url) => url.includes('status')) || '';
             const usernameElement = userInfoDiv.querySelector('div[dir="ltr"]');
-            tweet.username = usernameElement ? usernameElement.textContent : "";
+            tweet.author = usernameElement ? usernameElement.textContent : "";  // 使用 author
             const timeElement = userInfoDiv.querySelector('time');
             if (timeElement) {
                 const timeStr = timeElement.getAttribute('datetime');
@@ -88,7 +88,7 @@ function getTwitterContent(tweetElement) {
     return tweetInfo.text.trim();
 }
 
-function addFireflyButtonToTweet(tweetElement) {
+function addFireflyButtonToTweet(tweetElement, retries = 3) {
     const actionsElement = tweetElement.querySelector('[role="group"]');
     if (actionsElement && !actionsElement.querySelector('.twitter-firefly-button')) {
         try {
@@ -105,13 +105,26 @@ function addFireflyButtonToTweet(tweetElement) {
             fireflyButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const tweetContent = getTwitterContent(tweetElement);
-                if (tweetContent) {
-                    sendToFireflyCard(tweetContent);
+                try {
+                    const tweetInfo = extractTweetInfo(tweetElement);
+                    const content = getTwitterContent(tweetElement);
+                    if (content) {
+                        sendToFireflyCard(content, tweetInfo);
+                    }
+                } catch (error) {
+                    console.error("Error processing tweet:", error);
+                    if (error.message.includes("Extension context invalidated") && retries > 0) {
+                        console.log(`Retrying... (${retries} attempts left)`);
+                        setTimeout(() => addFireflyButtonToTweet(tweetElement, retries - 1), 1000);
+                    }
                 }
             });
         } catch (error) {
             console.error("Error adding Firefly button to tweet:", error);
+            if (error.message.includes("Extension context invalidated") && retries > 0) {
+                console.log(`Retrying... (${retries} attempts left)`);
+                setTimeout(() => addFireflyButtonToTweet(tweetElement, retries - 1), 1000);
+            }
         }
     }
 }
@@ -124,8 +137,12 @@ function observeTwitterTimeline() {
                     if (node.nodeType === Node.ELEMENT_NODE) {
                         const tweets = node.querySelectorAll('article[data-testid="tweet"]:not(.firefly-processed)');
                         tweets.forEach(tweet => {
-                            addFireflyButtonToTweet(tweet);
-                            tweet.classList.add('firefly-processed');
+                            try {
+                                addFireflyButtonToTweet(tweet);
+                                tweet.classList.add('firefly-processed');
+                            } catch (error) {
+                                console.error("Error processing tweet:", error);
+                            }
                         });
                     }
                 });

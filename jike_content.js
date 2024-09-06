@@ -15,67 +15,11 @@ function createFireflyButton(platform) {
     }
 }
 
-function sendToFireflyCard(content, retries = 3) {
-    console.log("Sending content to background script:", content);
-    chrome.runtime.sendMessage({
-        type: 'navigateToFireflyCard',
-        content: content
-    }, (response) => {
-        if (chrome.runtime.lastError) {
-            console.error('Error sending message:', chrome.runtime.lastError);
-            if (retries > 0) {
-                console.log(`Retrying... (${retries} attempts left)`);
-                setTimeout(() => sendToFireflyCard(content, retries - 1), 1000);
-            } else {
-                alert(`An error occurred: ${chrome.runtime.lastError.message}`);
-            }
-        } else {
-            console.log('Message sent successfully');
-        }
-    });
-}
-
-function addFireflyButton(postElement, platform, extractFunction, getContentFunction) {
-    const actionsSelector = {
-        'twitter': '[role="group"]',
-        'jike': '.flex.flex-row.mt-\\[13px\\].text-tint-icon-gray.text-body-3.font-medium.h-6',
-        'weibo': '.toolbar_main_3Mxwo'
-    };
-
-    const actionsElement = postElement.querySelector(actionsSelector[platform]);
-    if (actionsElement && !actionsElement.querySelector(`.${platform}-firefly-button`)) {
-        const fireflyButton = createFireflyButton(platform);
-        if (!fireflyButton) return;
-
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = platform === 'weibo' ? 'woo-box-item-flex toolbar_item_1ky_D toolbar_cursor_34j5V' : 'min-w-[120px] items-center flex cursor-pointer hover:text-web-icon-gray_hover';
-        buttonContainer.appendChild(fireflyButton);
-
-        if (platform === 'jike') {
-            actionsElement.insertBefore(buttonContainer, actionsElement.lastElementChild);
-        } else {
-            actionsElement.appendChild(buttonContainer);
-        }
-
-        fireflyButton.addEventListener('click', async (e) => {
-            console.log("Firefly button clicked");
-            e.preventDefault();
-            e.stopPropagation();
-            const postInfo = extractFunction(postElement);
-            console.log(`Extracted ${platform.charAt(0).toUpperCase() + platform.slice(1)} Post Info:`, postInfo);
-            const content = await getContentFunction(postElement);
-            if (content) {
-                sendToFireflyCard(content);
-            }
-        });
-    }
-}
-
 // 即刻特定的函数
 function extractJikePostInfo(postElement) {
     console.log("Extracting Jike post info", postElement);
     const post = {
-        avatar: "",
+        icon: "",
         content: "",
         images: [],
         author: "",
@@ -88,13 +32,13 @@ function extractJikePostInfo(postElement) {
     try {
         // 提取头像
         const avatarImg = postElement.querySelector('.AvatarImage___StyledImg-sc-1kapr56-0');
-        post.avatar = avatarImg ? avatarImg.src : "";
+        post.icon = avatarImg ? avatarImg.src : "";
 
         // 提取作者
         const authorElement = postElement.querySelector('.flex.flex-row.pt-0\\.5.pb-1 a');
         post.author = authorElement ? authorElement.textContent.trim() : "";
 
-        // 提取时间（即刻可能没有明确的时间元素，可能需要进一步调整）
+        // 提取时间
         const timeElement = postElement.querySelector('time');
         post.time = timeElement ? timeElement.getAttribute('datetime') : "";
 
@@ -126,7 +70,7 @@ function extractJikePostInfo(postElement) {
 
 function getJikeContent(postElement) {
     const postInfo = extractJikePostInfo(postElement);
-    if (!postInfo) return "";
+    if (!postInfo) return { content: "", postInfo: null };
 
     console.log("Extracted Jike Post Info:", postInfo);
 
@@ -141,7 +85,7 @@ function getJikeContent(postElement) {
     textarea.innerHTML = content;
     content = textarea.value;
 
-    return content.trim();
+    return { content: content.trim(), postInfo };
 }
 
 function addFireflyButtonToJikePost(postElement) {
@@ -175,9 +119,9 @@ function addFireflyButtonToJikePost(postElement) {
                 console.log("Firefly button clicked");
                 e.preventDefault();
                 e.stopPropagation();
-                const content = getJikeContent(postElement);
-                if (content) {
-                    sendToFireflyCard(content);
+                const { content, postInfo } = getJikeContent(postElement);
+                if (content && postInfo) {
+                    sendToFireflyCard(content, postInfo);  // 使用更新后的函数
                 }
             });
         } catch (error) {
