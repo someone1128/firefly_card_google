@@ -22,7 +22,8 @@ function navigateToFireflyCard(content = '', postInfo = null) {
     const lang = chrome.i18n.getUILanguage().startsWith('zh') ? 'zh' : 'en';
 
     const switchConfig = {
-        showTitle: false
+        showTitle: false,
+        showQRCode:false
     };
 
     // 添加空值检查
