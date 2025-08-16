@@ -5,7 +5,7 @@ const baseUrl = 'https://fireflycard.shushiai.com/edit';
 
 // 获取当前语言设置
 function getCurrentLanguage() {
-    return chrome.i18n.getUILanguage() || 'en';
+    return chrome.i18n.getUILanguage() || 'zh_CN';
 }
 
 // 国际化日期格式生成
@@ -66,8 +66,9 @@ function navigateToFireflyCard(content = '', postInfo = null) {
         });
     }
 
-    // 语言设置 - 动态获取
-    const lang = getCurrentLanguage().startsWith('zh') ? 'zh' : 'en';
+    // 语言设置 - 动态获取，默认中文
+    const currentLang = getCurrentLanguage();
+    const lang = currentLang.startsWith('en') ? 'en' : 'zh';
 
     // 根据是否有图片决定是否转换换行符
     const hasImages = postInfo && postInfo.images && postInfo.images.length > 0;
@@ -75,12 +76,20 @@ function navigateToFireflyCard(content = '', postInfo = null) {
 
     // 构建新的form对象
     const form = {
-        icon: postInfo && postInfo.icon ? postInfo.icon : '',
         date: getCurrentDateFormatted(),
         title: '', // 标题留空，内容放在content字段
         content: processedContent || '', // 有图片时保持原始格式，无图片时转换<br/>
-        author: postInfo && postInfo.author ? postInfo.author : '',
     };
+    
+    // 只有从社交媒体平台点击时才添加icon和author
+    if (postInfo) {
+        if (postInfo.icon) {
+            form.icon = postInfo.icon;
+        }
+        if (postInfo.author) {
+            form.author = postInfo.author;
+        }
+    }
 
     // 构建style对象（使用默认样式配置）
     const style = {
@@ -88,13 +97,13 @@ function navigateToFireflyCard(content = '', postInfo = null) {
         height: 0,
     };
 
-    // 更新switchConfig对象
+    // 更新switchConfig对象 - 根据是否有postInfo动态设置
     const switchConfig = {
-        showIcon: true,
+        showIcon: !!(postInfo && postInfo.icon), // 只有社交媒体平台有icon时才显示
         showDate: true,
         showTitle: false,
         showContent: true,
-        showAuthor: true,
+        showAuthor: !!(postInfo && postInfo.author), // 只有社交媒体平台有author时才显示
         showTextCount: true,
         showQRCode: false,
         showPageNum: false,
@@ -163,7 +172,31 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 chrome.action.onClicked.addListener((tab) => {
-    navigateToFireflyCard();
+    // 直接跳转到网址，不传递任何参数
+    const cleanUrl = baseUrl;
+    
+    chrome.tabs.query({}, function(tabs) {
+        if (chrome.runtime.lastError) {
+            console.error(`Error querying tabs: ${chrome.runtime.lastError.message}`);
+            return;
+        }
+
+        let foundTab = tabs.find(tab => tab.url && tab.url.startsWith(baseUrl));
+
+        if (foundTab) {
+            chrome.tabs.update(foundTab.id, { url: cleanUrl, active: true }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error(`Error updating tab: ${chrome.runtime.lastError.message}`);
+                }
+            });
+        } else {
+            chrome.tabs.create({ url: cleanUrl, active: true }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error(`Error creating tab: ${chrome.runtime.lastError.message}`);
+                }
+            });
+        }
+    });
 });
 
 // 在现有代码的末尾添加以下内容

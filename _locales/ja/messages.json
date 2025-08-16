@@ -4,7 +4,7 @@
     "description": "拡張機能名"
   },
   "extDescription": {
-    "message": "選択したテキストをワンクリックで美しいカードに変換。Twitter、Weibo、Jikeなどのソーシャルプラットフォームのコンテンツ美化をサポート。",
+    "message": "テキストをワンクリックで美しいカードに変換。Twitter、Weibo、Jikeをサポート。",
     "description": "拡張機能の説明"
   },
   "contextMenuTitle": {

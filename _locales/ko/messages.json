@@ -4,7 +4,7 @@
     "description": "확장 프로그램 이름"
   },
   "extDescription": {
-    "message": "선택한 텍스트를 한 번의 클릭으로 아름다운 카드로 변환합니다. Twitter, Weibo, Jike 등 소셜 플랫폼 콘텐츠 미화를 지원합니다.",
+    "message": "텍스트를 원클릭으로 아름다운 카드로 변환. Twitter, Weibo, Jike 지원.",
     "description": "확장 프로그램 설명"
   },
   "contextMenuTitle": {
