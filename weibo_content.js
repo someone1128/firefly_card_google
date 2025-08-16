@@ -1,19 +1,59 @@
 console.log("Weibo content script loaded for URL:", window.location.href);
 
+// 检查扩展上下文是否有效
+function isExtensionContextValid() {
+    try {
+        return !!(chrome && chrome.runtime && chrome.runtime.id);
+    } catch (error) {
+        return false;
+    }
+}
+
+// 显示用户友好的错误提示
+function showUserFriendlyError(message) {
+    const errorElement = document.createElement('div');
+    errorElement.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ff4444;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 6px;
+        z-index: 10000;
+        font-size: 14px;
+        max-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    `;
+    errorElement.textContent = message;
+    
+    document.body.appendChild(errorElement);
+    
+    setTimeout(() => {
+        if (errorElement.parentNode) {
+            errorElement.parentNode.removeChild(errorElement);
+        }
+    }, 3000);
+}
+
 function createFireflyButton(retries = 3) {
     return new Promise((resolve, reject) => {
         const attempt = () => {
             try {
+                if (!isExtensionContextValid()) {
+                    throw new Error('Extension context is invalid');
+                }
+
                 const button = document.createElement('div');
                 button.className = 'firefly-button weibo-firefly-button';
-                button.title = chrome.i18n.getMessage("contextMenuTitle") || "流光卡片";
+                button.title = chrome.i18n.getMessage("ui_buttonTitle") || chrome.i18n.getMessage("contextMenuTitle") || "Streamer Card";
                 const iconUrl = chrome.runtime.getURL('images/logo.png');
                 console.log("Icon URL:", iconUrl);
                 button.innerHTML = `<img src="${iconUrl}" alt="Firefly Card" onerror="console.error('Failed to load icon:', this.src);">`;
                 resolve(button);
             } catch (error) {
                 console.error("Error creating Firefly button:", error);
-                if (retries > 0) {
+                if (retries > 0 && error.message.includes('Extension context')) {
                     console.log(`Retrying... (${retries} attempts left)`);
                     setTimeout(() => attempt(), 1000);
                     retries--;
@@ -164,10 +204,22 @@ function addFireflyButtonToWeiboPost(postElement) {
                 console.log("Firefly button clicked");
                 e.preventDefault();
                 e.stopPropagation();
-                const postInfo = extractWeiboPostInfo(postElement);
-                const content = await getWeiboContent(postElement);
-                if (content) {
-                    sendToFireflyCard(content, postInfo);
+                try {
+                    // 检查扩展上下文
+                    if (!isExtensionContextValid()) {
+                        console.error('Extension context is invalid');
+                        showUserFriendlyError(getI18nMessage('errors_extensionContextInvalid', 'Extension context is invalid, please refresh the page'));
+                        return;
+                    }
+
+                    const postInfo = extractWeiboPostInfo(postElement);
+                    const content = await getWeiboContent(postElement);
+                    if (content) {
+                        await sendToFireflyCard(content, postInfo);
+                    }
+                } catch (error) {
+                    console.error("Error processing Weibo post:", error);
+                    showUserFriendlyError(getI18nMessage('errors_processWeiboError', 'Error processing Weibo post, please try again'));
                 }
             });
         }).catch(error => {

@@ -1,28 +1,38 @@
+/* 即刻流光卡片按钮样式 */
 .jike-firefly-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-    margin-right: 16px;
-    visibility: hidden; /* 添加这一行 */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    min-width: 44px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    margin-left: 8px !important;
 }
 
-article:hover .jike-firefly-button {
-    opacity: 1;
-    visibility: visible; /* 添加这一行 */
+.jike-firefly-button:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 帖子悬停时显示按钮 */
+.jk-1i3egjr:hover .jike-firefly-button {
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .jike-firefly-button img {
-    width: 18px;
-    height: 18px;
-    display: block;
+    width: 20px !important;
+    height: 20px !important;
+    display: block !important;
+    transition: opacity 0.2s ease !important;
 }
 
+/* 移除旧的悬停隐藏样式 */
 .min-w-\[120px\].items-center.flex.cursor-pointer.hover\:text-web-icon-gray_hover {
     display: inline-flex;
     align-items: center;
 }
+

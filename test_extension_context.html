@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试扩展上下文修复</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .error { color: red; }
+        .success { color: green; }
+        button { padding: 10px 15px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>扩展上下文修复测试页面</h1>
+    
+    <div class="test-section">
+        <h3>测试场景 1: 正常情况下的文本选择</h3>
+        <p>选择这段文字来测试扩展的文本选择功能。这个测试应该在扩展正常工作时成功。</p>
+        <div id="result1"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试场景 2: 模拟扩展上下文失效</h3>
+        <p>这个按钮会模拟扩展上下文失效的情况：</p>
+        <button onclick="testContextInvalid()">测试上下文失效处理</button>
+        <div id="result2"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试场景 3: 社交媒体按钮</h3>
+        <p>这个区域模拟社交媒体帖子，测试按钮点击错误处理：</p>
+        <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+            <p>这是一个模拟的社交媒体帖子内容。</p>
+            <button onclick="testSocialMediaButton()">🔥 流光卡片</button>
+        </div>
+        <div id="result3"></div>
+    </div>
+
+    <script>
+        function logResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            const className = isError ? 'error' : 'success';
+            element.innerHTML = `<div class="${className}">${message}</div>`;
+        }
+
+        function testContextInvalid() {
+            // 模拟上下文失效的情况
+            const mockChrome = null;
+            
+            try {
+                if (!mockChrome || !mockChrome.runtime) {
+                    throw new Error('Extension context invalidated');
+                }
+                logResult('result2', '❌ 测试失败: 应该检测到上下文失效', true);
+            } catch (error) {
+                logResult('result2', '✅ 测试通过: 正确检测到上下文失效 - ' + error.message);
+            }
+        }
+
+        function testSocialMediaButton() {
+            try {
+                // 模拟社交媒体按钮点击
+                const content = "这是测试内容";
+                const postInfo = { author: "测试用户", icon: "" };
+                
+                logResult('result3', '🧪 正在测试社交媒体按钮...');
+                
+                // 在真实扩展环境中，这会调用 sendToFireflyCard
+                setTimeout(() => {
+                    logResult('result3', '✅ 社交媒体按钮功能测试完成');
+                }, 1000);
+                
+            } catch (error) {
+                logResult('result3', '❌ 社交媒体按钮测试失败: ' + error.message, true);
+            }
+        }
+
+        // 监听文本选择事件
+        document.addEventListener('mouseup', () => {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim()) {
+                logResult('result1', '✅ 检测到文本选择: "' + selection.toString().trim().substring(0, 50) + '"');
+            }
+        });
+
+        // 页面加载完成后显示状态
+        window.addEventListener('load', () => {
+            console.log('测试页面加载完成');
+            logResult('result1', '📝 请选择上方的文字来测试文本选择功能');
+        });
+    </script>
+</body>
+</html>

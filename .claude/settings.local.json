@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_close",
+      "Bash(rm:*)"
+    ],
+    "defaultMode": "acceptEdits"
+  }
+}

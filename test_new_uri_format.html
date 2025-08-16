@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试新的流光卡片URI格式</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
+        .success { color: green; font-weight: bold; }
+        .info { color: blue; }
+        .example { background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow-wrap: break-word; }
+        button { padding: 10px 15px; margin: 5px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #005a87; }
+        .json-display { background: #f8f8f8; padding: 10px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>新的流光卡片URI格式测试</h1>
+    
+    <div class="test-section">
+        <h3>🔄 新格式参数结构</h3>
+        <p class="info">新的URI格式包含以下参数：</p>
+        <ul>
+            <li><strong>form</strong> - 包含内容数据的JSON对象</li>
+            <li><strong>style</strong> - 包含样式配置的JSON对象</li>
+            <li><strong>switchConfig</strong> - 包含显示开关的JSON对象</li>
+            <li><strong>temp</strong> - 模板类型 (tempEasy)</li>
+            <li><strong>language</strong> - 语言设置 (zh)</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>📝 模拟扩展生成的URL</h3>
+        <button onclick="generateTestURL()">生成测试URL</button>
+        <div id="url-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔍 参数解码验证</h3>
+        <button onclick="decodeParameters()">解码并验证参数</button>
+        <div id="decode-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🎯 实际测试数据</h3>
+        <p>使用即刻帖子数据进行测试：</p>
+        <button onclick="testWithJikeData()">测试即刻数据</button>
+        <div id="jike-test-result"></div>
+    </div>
+
+    <script>
+        // 模拟background.js中的函数
+        function getCurrentDateChinese() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+
+        function countTextLength(text) {
+            if (!text) return 0;
+            const textOnly = text.replace(/<[^>]*>/g, '');
+            return textOnly.length;
+        }
+
+        function generateFireflyCardURL(content = '', postInfo = null) {
+            let finalContent = content;
+
+            // 添加图片
+            if (postInfo && postInfo.images && postInfo.images.length > 0) {
+                finalContent += '\n\n';
+                postInfo.images.forEach(img => {
+                    if (img) {
+                        finalContent += `![image](${img})\n`;
+                    }
+                });
+            }
+
+            const lang = 'zh';
+            const baseUrl = 'https://fireflycard.shushiai.com/edit';
+
+            // 构建新的form对象
+            const form = {
+                icon: postInfo && postInfo.icon ? postInfo.icon : '',
+                date: getCurrentDateChinese(),
+                title: finalContent ? `<p>${finalContent}</p>` : '',
+                author: postInfo && postInfo.author ? postInfo.author : '',
+                textCount: '字数',
+                qrCodeTitle: '流光卡片',
+                qrCodeText: '扫描二维码',
+                pagination: '01',
+                qrCode: 'https://fireflycard.shushiai.com/zh',
+                textCountNum: countTextLength(finalContent)
+            };
+
+            // 构建style对象
+            const style = {
+                align: 'left',
+                backgroundName: 'dark-color-4',
+                backShadow: '',
+                font: 'Alibaba-PuHuiTi-Regular',
+                width: 614,
+                ratio: '',
+                height: 0,
+                fontScale: 1,
+                padding: '30px+30px+30px+30px',
+                borderRadius: '15px',
+                backgroundAngle: '300deg',
+                lineHeights: { content: '' },
+                letterSpacings: { content: '' },
+                rowSpacings: { content: '' }
+            };
+
+            // 更新switchConfig对象
+            const switchConfig = {
+                showIcon: true,
+                showDate: true,
+                showTitle: true,
+                showContent: true,
+                showAuthor: true,
+                showTextCount: true,
+                showQRCode: false,
+                showPageNum: false,
+                showWatermark: false,
+                showTGradual: true
+            };
+
+            // 构建新的查询参数
+            const formParam = encodeURIComponent(JSON.stringify(form));
+            const styleParam = encodeURIComponent(JSON.stringify(style));
+            const switchConfigParam = encodeURIComponent(JSON.stringify(switchConfig));
+            
+            const queryString = `form=${formParam}&style=${styleParam}&switchConfig=${switchConfigParam}&temp=tempEasy&language=${lang}`;
+            const newUrl = `${baseUrl}?${queryString}`;
+
+            return { url: newUrl, form, style, switchConfig };
+        }
+
+        function generateTestURL() {
+            const testContent = "这是一条测试内容，用来验证新的URI格式是否正确工作！";
+            const testPostInfo = {
+                author: "测试用户",
+                icon: "https://example.com/avatar.jpg"
+            };
+
+            const result = generateFireflyCardURL(testContent, testPostInfo);
+            
+            document.getElementById('url-result').innerHTML = `
+                <div class="success">✅ URL生成成功</div>
+                <div class="example">
+                    <strong>生成的URL：</strong><br>
+                    <a href="${result.url}" target="_blank" style="word-break: break-all;">${result.url}</a>
+                </div>
+                <p><strong>URL长度：</strong> ${result.url.length} 字符</p>
+            `;
+        }
+
+        function decodeParameters() {
+            const testContent = "《东邪西毒》的碧海潮生按玉箫震退一众内功高手，太牛了！";
+            const testPostInfo = {
+                author: "TomXu",
+                icon: "https://cdnv2.ruguoapp.com/Fnd2VJat4pLnJ1vf57ZnxR5W5AIMv3.jpg"
+            };
+
+            const result = generateFireflyCardURL(testContent, testPostInfo);
+            
+            document.getElementById('decode-result').innerHTML = `
+                <div class="success">✅ 参数解码完成</div>
+                
+                <h4>Form 对象：</h4>
+                <div class="json-display">${JSON.stringify(result.form, null, 2)}</div>
+                
+                <h4>Style 对象：</h4>
+                <div class="json-display">${JSON.stringify(result.style, null, 2)}</div>
+                
+                <h4>SwitchConfig 对象：</h4>
+                <div class="json-display">${JSON.stringify(result.switchConfig, null, 2)}</div>
+                
+                <p><strong>字数统计：</strong> ${result.form.textCountNum} 字符</p>
+                <p><strong>当前日期：</strong> ${result.form.date}</p>
+            `;
+        }
+
+        function testWithJikeData() {
+            const jikeContent = "🥲🥲🥲编程太上瘾了，debug到现在，困了还不想入睡。";
+            const jikePostInfo = {
+                author: "七天可爱多",
+                icon: "https://cdnv2.ruguoapp.com/FreBT_d48NOzeO7N3-p7d7oV1juhv3.jpg",
+                images: []
+            };
+
+            const result = generateFireflyCardURL(jikeContent, jikePostInfo);
+            
+            document.getElementById('jike-test-result').innerHTML = `
+                <div class="success">✅ 即刻数据测试完成</div>
+                <div class="example">
+                    <strong>测试URL：</strong><br>
+                    <a href="${result.url}" target="_blank" style="word-break: break-all;">${result.url}</a>
+                </div>
+                
+                <h4>提取的数据：</h4>
+                <ul>
+                    <li><strong>内容：</strong> ${jikeContent}</li>
+                    <li><strong>作者：</strong> ${jikePostInfo.author}</li>
+                    <li><strong>头像：</strong> ${jikePostInfo.icon}</li>
+                    <li><strong>字数：</strong> ${result.form.textCountNum} 字符</li>
+                    <li><strong>日期：</strong> ${result.form.date}</li>
+                </ul>
+                
+                <p><strong>🎯 点击上方链接测试在流光卡片网站中的实际效果</strong></p>
+            `;
+        }
+
+        // 页面加载完成后显示信息
+        window.addEventListener('load', () => {
+            console.log('新URI格式测试页面加载完成');
+        });
+    </script>
+</body>
+</html>

@@ -1,14 +1,62 @@
 {
   "extName": {
-    "message": "流光卡片~让分享更优雅",
+    "message": "流光卡片",
     "description": "扩展名称"
   },
   "extDescription": {
-    "message": "我们致力于提供一种全新的文字体验。让你分享的文字，书摘，小红书帖子，歌词，朋友圈语录变得更优雅有吸引力",
+    "message": "一键将选中文本转化为精美卡片。支持Twitter、微博、即刻等社交平台内容美化分享。",
     "description": "扩展描述"
   },
   "contextMenuTitle": {
     "message": "流光卡片",
     "description": "右键菜单标题"
+  },
+  
+  "errors_extensionContextInvalid": {
+    "message": "扩展上下文已失效，请刷新页面或重新加载扩展",
+    "description": "扩展上下文失效错误"
+  },
+  "errors_generalError": {
+    "message": "发生错误",
+    "description": "通用错误前缀"
+  },
+  "errors_extensionError": {
+    "message": "扩展发生错误，请刷新页面重试",
+    "description": "扩展一般性错误"
+  },
+  "errors_processTwitterError": {
+    "message": "处理推文时发生错误，请重试",
+    "description": "处理Twitter内容错误"
+  },
+  "errors_processJikeError": {
+    "message": "处理即刻帖子时发生错误，请重试",
+    "description": "处理即刻内容错误"
+  },
+  "errors_processWeiboError": {
+    "message": "处理微博帖子时发生错误，请重试",
+    "description": "处理微博内容错误"
+  },
+  
+  "success_messageSent": {
+    "message": "消息发送成功",
+    "description": "消息发送成功提示"
+  },
+  
+  "ui_buttonTitle": {
+    "message": "流光卡片",
+    "description": "按钮标题"
+  },
+  
+  "date_year": {
+    "message": "年",
+    "description": "年份单位"
+  },
+  "date_month": {
+    "message": "月",
+    "description": "月份单位"
+  },
+  "date_day": {
+    "message": "日",
+    "description": "日期单位"
   }
 }

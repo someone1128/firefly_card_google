@@ -1,14 +1,62 @@
 {
   "extName": {
-    "message": "Firefly Card - Elegant Sharing",
+    "message": "Streamer Card",
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "We are committed to providing a new text experience. Make your shared text, book excerpts, social media posts, lyrics, and status updates more elegant and attractive",
+    "message": "Transform selected text into beautiful cards with one click. Support Twitter, Weibo, Jike and other social platforms content beautification.",
     "description": "Extension description"
   },
   "contextMenuTitle": {
-    "message": "Firefly Card",
+    "message": "Streamer Card",
     "description": "Context menu title"
+  },
+  
+  "errors_extensionContextInvalid": {
+    "message": "Extension context is invalid, please refresh the page or reload the extension",
+    "description": "Extension context invalid error"
+  },
+  "errors_generalError": {
+    "message": "An error occurred",
+    "description": "General error prefix"
+  },
+  "errors_extensionError": {
+    "message": "Extension error occurred, please refresh and try again",
+    "description": "General extension error"
+  },
+  "errors_processTwitterError": {
+    "message": "Error processing tweet, please try again",
+    "description": "Twitter content processing error"
+  },
+  "errors_processJikeError": {
+    "message": "Error processing Jike post, please try again",
+    "description": "Jike content processing error"
+  },
+  "errors_processWeiboError": {
+    "message": "Error processing Weibo post, please try again",
+    "description": "Weibo content processing error"
+  },
+  
+  "success_messageSent": {
+    "message": "Message sent successfully",
+    "description": "Message sent success notification"
+  },
+  
+  "ui_buttonTitle": {
+    "message": "Streamer Card",
+    "description": "Button title"
+  },
+  
+  "date_year": {
+    "message": "",
+    "description": "Year suffix (empty for English)"
+  },
+  "date_month": {
+    "message": "",
+    "description": "Month suffix (empty for English)"
+  },
+  "date_day": {
+    "message": "",
+    "description": "Day suffix (empty for English)"
   }
 }

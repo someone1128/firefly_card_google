@@ -1,11 +1,58 @@
 console.log("Twitter content script loaded for URL:", window.location.href);
 
+// 检查扩展上下文是否有效
+function isExtensionContextValid() {
+    try {
+        return !!(chrome && chrome.runtime && chrome.runtime.id);
+    } catch (error) {
+        return false;
+    }
+}
+
+// 显示用户友好的错误提示
+function showUserFriendlyError(message) {
+    const errorElement = document.createElement('div');
+    errorElement.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ff4444;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 6px;
+        z-index: 10000;
+        font-size: 14px;
+        max-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    `;
+    errorElement.textContent = message;
+    
+    document.body.appendChild(errorElement);
+    
+    setTimeout(() => {
+        if (errorElement.parentNode) {
+            errorElement.parentNode.removeChild(errorElement);
+        }
+    }, 3000);
+}
+
 function createFireflyButton() {
-    const button = document.createElement('div');
-    button.className = 'firefly-button';
-    button.title = chrome.i18n.getMessage("contextMenuTitle");
-    button.innerHTML = `<img src="${chrome.runtime.getURL('images/logo.png')}" alt="Firefly Card">`;
-    return button;
+    try {
+        if (!isExtensionContextValid()) {
+            console.error('Cannot create button: Extension context is invalid');
+            return null;
+        }
+
+        const button = document.createElement('div');
+        button.className = 'firefly-button twitter-firefly-button';
+        button.title = chrome.i18n.getMessage("ui_buttonTitle") || chrome.i18n.getMessage("contextMenuTitle") || "Streamer Card";
+        const iconUrl = chrome.runtime.getURL('images/logo.png');
+        button.innerHTML = `<img src="${iconUrl}" alt="Firefly Card" onerror="console.error('Failed to load icon:', this.src);">`;
+        return button;
+    } catch (error) {
+        console.error("Error creating Firefly button:", error);
+        return null;
+    }
 }
 
 function extractTweetInfo(articleElement) {
@@ -82,6 +129,27 @@ function extractTweetInfo(articleElement) {
     return tweet;
 }
 
+// 自动展开推文内容
+async function expandTweetContent(tweetElement) {
+    try {
+        // 查找"显示更多"按钮
+        const showMoreButton = tweetElement.querySelector('[data-testid="tweet-text-show-more-link"]');
+        if (showMoreButton) {
+            console.log("Found 'Show more' button, clicking to expand...");
+            showMoreButton.click();
+            
+            // 等待内容展开
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            console.log("Tweet content expanded successfully");
+        } else {
+            console.log("No 'Show more' button found - content is already fully visible");
+        }
+    } catch (error) {
+        console.error("Error expanding tweet content:", error);
+    }
+}
+
 function getTwitterContent(tweetElement) {
     const tweetInfo = extractTweetInfo(tweetElement);
     console.log("Tweet Info:", tweetInfo);
@@ -92,7 +160,7 @@ function addFireflyButtonToTweet(tweetElement, retries = 3) {
     const actionsElement = tweetElement.querySelector('[role="group"]');
     if (actionsElement && !actionsElement.querySelector('.twitter-firefly-button')) {
         try {
-            const fireflyButton = createFireflyButton('twitter');
+            const fireflyButton = createFireflyButton();
             if (!fireflyButton) return;
 
             const buttonContainer = document.createElement('div');
@@ -102,20 +170,32 @@ function addFireflyButtonToTweet(tweetElement, retries = 3) {
             
             actionsElement.appendChild(buttonContainer);
 
-            fireflyButton.addEventListener('click', (e) => {
+            fireflyButton.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 try {
+                    // 检查扩展上下文
+                    if (!isExtensionContextValid()) {
+                        console.error('Extension context is invalid');
+                        showUserFriendlyError(chrome.i18n.getMessage('errors_extensionContextInvalid') || 'Extension context is invalid, please refresh the page');
+                        return;
+                    }
+
+                    // 自动点击"显示更多"按钮展开完整内容
+                    await expandTweetContent(tweetElement);
+
                     const tweetInfo = extractTweetInfo(tweetElement);
                     const content = getTwitterContent(tweetElement);
                     if (content) {
-                        sendToFireflyCard(content, tweetInfo);
+                        await sendToFireflyCard(content, tweetInfo);
                     }
                 } catch (error) {
                     console.error("Error processing tweet:", error);
-                    if (error.message.includes("Extension context invalidated") && retries > 0) {
+                    if (error.message && error.message.includes("Extension context invalidated") && retries > 0) {
                         console.log(`Retrying... (${retries} attempts left)`);
                         setTimeout(() => addFireflyButtonToTweet(tweetElement, retries - 1), 1000);
+                    } else {
+                        showUserFriendlyError(chrome.i18n.getMessage('errors_processTwitterError') || 'Error processing tweet, please try again');
                     }
                 }
             });

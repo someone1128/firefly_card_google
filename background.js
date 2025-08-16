@@ -1,8 +1,57 @@
-// background.js
+// background.js - 国际化版本
 
 let selectedText = '';
-const baseUrl = 'https://fireflycard.shushiai.com';
-// const baseUrl = 'http://localhost:3000';
+const baseUrl = 'https://fireflycard.shushiai.com/edit';
+
+// 获取当前语言设置
+function getCurrentLanguage() {
+    return chrome.i18n.getUILanguage() || 'en';
+}
+
+// 国际化日期格式生成
+function getCurrentDateFormatted() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    
+    const lang = getCurrentLanguage();
+    
+    // 根据语言环境格式化日期
+    if (lang.startsWith('zh')) {
+        return `${year}${chrome.i18n.getMessage("date_year")}${month}${chrome.i18n.getMessage("date_month")}${day}${chrome.i18n.getMessage("date_day")}`;
+    } else if (lang.startsWith('ja')) {
+        return `${year}年${month}月${day}日`;
+    } else if (lang.startsWith('ko')) {
+        return `${year}년 ${month}월 ${day}일`;
+    } else {
+        // 英文和其他语言使用标准格式
+        return new Intl.DateTimeFormat(lang, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        }).format(now);
+    }
+}
+
+// 计算文本字符数（去除HTML标签）
+function countTextLength(text) {
+    if (!text) return 0;
+    // 移除HTML标签
+    const textOnly = text.replace(/<[^>]*>/g, '');
+    return textOnly.length;
+}
+
+// 格式化内容，将换行符转换为 <br /> 标签
+function formatContent(content) {
+    if (!content) return '';
+    
+    // 将各种换行符统一转换为 <br />
+    return content
+        .replace(/\r\n/g, '<br />') // Windows换行符
+        .replace(/\n/g, '<br />') // Unix/Linux换行符
+        .replace(/\r/g, '<br />'); // 旧Mac换行符
+}
 
 function navigateToFireflyCard(content = '', postInfo = null) {
     let finalContent = content;
@@ -17,22 +66,49 @@ function navigateToFireflyCard(content = '', postInfo = null) {
         });
     }
 
-    const encodedText = finalContent ? encodeURIComponent(finalContent.replace(/ {2}/g, '__NEWLINE__')) : '';
+    // 语言设置 - 动态获取
+    const lang = getCurrentLanguage().startsWith('zh') ? 'zh' : 'en';
 
-    const lang = chrome.i18n.getUILanguage().startsWith('zh') ? 'zh' : 'en';
+    // 根据是否有图片决定是否转换换行符
+    const hasImages = postInfo && postInfo.images && postInfo.images.length > 0;
+    const processedContent = hasImages ? finalContent : formatContent(finalContent);
 
-    const switchConfig = {
-        showTitle: false,
-        showQRCode:false
+    // 构建新的form对象
+    const form = {
+        icon: postInfo && postInfo.icon ? postInfo.icon : '',
+        date: getCurrentDateFormatted(),
+        title: '', // 标题留空，内容放在content字段
+        content: processedContent || '', // 有图片时保持原始格式，无图片时转换<br/>
+        author: postInfo && postInfo.author ? postInfo.author : '',
     };
 
-    // 添加空值检查
-    const author = postInfo && postInfo.author ? encodeURIComponent(postInfo.author) : '';
-    const icon = postInfo && postInfo.icon ? encodeURIComponent(postInfo.icon) : '';
+    // 构建style对象（使用默认样式配置）
+    const style = {
+        align: 'left',
+        height: 0,
+    };
 
-    const queryString = `content=${encodedText}&author=${author}&icon=${icon}&height=0&switchConfig=${JSON.stringify(switchConfig)}`;
+    // 更新switchConfig对象
+    const switchConfig = {
+        showIcon: true,
+        showDate: true,
+        showTitle: false,
+        showContent: true,
+        showAuthor: true,
+        showTextCount: true,
+        showQRCode: false,
+        showPageNum: false,
+        showWatermark: false,
+        showTGradual: true
+    };
 
-    const newUrl = `${baseUrl}/${lang}?${queryString}`;
+    // 构建新的查询参数
+    const formParam = encodeURIComponent(JSON.stringify(form));
+    const styleParam = encodeURIComponent(JSON.stringify(style));
+    const switchConfigParam = encodeURIComponent(JSON.stringify(switchConfig));
+    
+    const queryString = `form=${formParam}&style=${styleParam}&switchConfig=${switchConfigParam}&temp=tempEasy&language=${lang}`;
+    const newUrl = `${baseUrl}?${queryString}`;
 
     chrome.tabs.query({}, function(tabs) {
         if (chrome.runtime.lastError) {

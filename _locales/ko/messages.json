@@ -1,0 +1,34 @@
+{
+  "extName": {
+    "message": "스트리머 카드",
+    "description": "확장 프로그램 이름"
+  },
+  "extDescription": {
+    "message": "선택한 텍스트를 한 번의 클릭으로 아름다운 카드로 변환합니다. Twitter, Weibo, Jike 등 소셜 플랫폼 콘텐츠 미화를 지원합니다.",
+    "description": "확장 프로그램 설명"
+  },
+  "contextMenuTitle": {
+    "message": "스트리머 카드",
+    "description": "컨텍스트 메뉴 제목"
+  },
+  "errors_extensionContextInvalid": {
+    "message": "확장 프로그램 컨텍스트가 유효하지 않습니다. 페이지를 새로고침하거나 확장 프로그램을 다시 로드하세요",
+    "description": "확장 프로그램 컨텍스트 무효 오류"
+  },
+  "ui_buttonTitle": {
+    "message": "스트리머 카드",
+    "description": "버튼 제목"
+  },
+  "date_year": {
+    "message": "년",
+    "description": "년도 단위"
+  },
+  "date_month": {
+    "message": "월",
+    "description": "월 단위"
+  },
+  "date_day": {
+    "message": "일",
+    "description": "일 단위"
+  }
+}
