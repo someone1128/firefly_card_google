@@ -49,6 +49,20 @@
 - [ ] 适配豆瓣
 - [ ] 调整传递参数
 
+# Recommend Nano Banana Pro
+
+### 무료 Nano Banana Pro:
+https://nanobanana-pro.org/ko
+
+### Free Nano Banana Pro:
+https://nanobanana-pro.org/en
+
+### 無料 Nano Banana Pro：
+https://nanobanana-pro.org/
+
+### Nano Banana Pro gratis:
+https://nanobanana-pro.org/es
+
 
 
 🔗 流光卡片网页：https://fireflycard.shushiai.com/
